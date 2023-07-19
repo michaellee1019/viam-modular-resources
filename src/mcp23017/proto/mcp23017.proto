@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package michaellee1019.component.audiooutput.v1;
+
+import "google/api/annotations.proto";
+
+service MCP23017Service {
+  rpc FlashWord(FlashWordRequest) returns (FlashWordResponse) {
+    option (google.api.http) = {
+      post: "/michaellee1019/api/v1/component/mcp23017/flash_word"
+    };
+  }
+}
+
+message FlashWordRequest {
+  string word = 1;
+}
+
+message FlashWordResponse {}
