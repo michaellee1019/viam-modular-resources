@@ -1,8 +1,9 @@
 on:
+  worflow-dispatch:
   release:
     types: [published]
     secrets:
-      VIAM_API_KEY:
+      VIAM_CLI_AUTH:
         required: true
 
 jobs:
@@ -21,6 +22,9 @@ jobs:
       with:
         tag: ${{ github.event.release.tag_name }}
         tarBall: true
+
+    - name: Set CLI Auth
+      run: echo ${{ secrets.VIAM_CLI_AUTH }} > ~/.viam/cached_cli_config.json
   
     - name: Module Upload for linux/arm64
       working-directory: ./rdk/cli
