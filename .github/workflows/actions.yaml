@@ -12,12 +12,12 @@ jobs:
     steps:
     - name: Check out repo
       uses: actions/checkout@v3
-
+      
     - name: Check out RDK
       uses: actions/checkout@v3
       with:
         repository: viamrobotics/rdk
-        path: ./rdk
+        path: rdk
         ref: refs/heads/main
 
     - name: Download release tarball
@@ -32,4 +32,5 @@ jobs:
         echo ${{ secrets.VIAM_CLI_AUTH }} | base64 -d > ~/.viam/cached_cli_config.json
   
     - name: Module Upload for linux/arm64
-      run: go run ./rdk/cli/viam/main.go --base-url='https://app.viam.dev:443' module upload --platform "linux/arm64" --version ${{github.event.release.tag_name}} ../../viam-modular-resources-${{github.event.release.tag_name}}.tar.gz
+      working-directory: rdk/cli
+      run: go run viam/main.go --base-url='https://app.viam.dev:443' module upload --platform "linux/arm64" --version ${{github.event.release.tag_name}} --module=../../meta.json ../../viam-modular-resources-${{github.event.release.tag_name}}.tar.gz
