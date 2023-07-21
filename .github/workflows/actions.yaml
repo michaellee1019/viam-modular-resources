@@ -24,7 +24,7 @@ jobs:
         tarBall: true
 
     - name: Set CLI Auth
-      run: echo ${{ secrets.VIAM_CLI_AUTH }} > ~/.viam/cached_cli_config.json
+      run: echo ${{ secrets.VIAM_CLI_AUTH }} | base64 -d > ~/.viam/cached_cli_config.json
   
     - name: Module Upload for linux/arm64
       working-directory: ./rdk/cli
