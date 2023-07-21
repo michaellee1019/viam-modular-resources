@@ -5,11 +5,14 @@ on:
       VIAM_API_KEY:
         required: true
 
-steps:
-- uses: actions/checkout@master
-  with:
-    name: viamrobotics/rdk
-    ref: refs/heads/main
+jobs:
+  checkout-rdk:
+    uses: actions/checkout@master
+    with:
+      name: viamrobotics/rdk
+      ref: refs/heads/main
 
-  working-directory: ./rdk
-  run: go run viam/main.go module upload --platform "darwin/amd64" --org_id 1a38b76f-cac0-451c-8f72-670994fcaf5b --name "mod2" --version "1.0.0-dfsaaf" packaged-module.tar.gz
+  module-upload:
+    needs: checkout-rdk
+    working-directory: ./rdk
+    run: go run viam/main.go module upload --platform "darwin/amd64" --org_id 1a38b76f-cac0-451c-8f72-670994fcaf5b --name "mod2" --version "1.0.0-dfsaaf" packaged-module.tar.gz
