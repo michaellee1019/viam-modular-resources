@@ -16,6 +16,12 @@ jobs:
         path: ./rdk
         ref: refs/heads/main
 
-    - name: Module Upload
+    - name: Download release tarball
+      uses: robinraju/release-downloader@v1.8
+      with:
+        tag: ${{ github.event.release.tag_name }}
+        tarBall: true
+  
+    - name: Module Upload for linux/arm64
       working-directory: ./rdk/cli
-      run: go run viam/main.go module upload --platform "darwin/amd64" --org_id 1a38b76f-cac0-451c-8f72-670994fcaf5b --name "mod2" --version "1.0.0-dfsaaf" packaged-module.tar.gz
+      run: go run viam/main.go module upload --platform "linux/arm64" --org_id 1a38b76f-cac0-451c-8f72-670994fcaf5b --name "mod2" --version "1.0.0-dfsaaf" source-code.tar.gz
