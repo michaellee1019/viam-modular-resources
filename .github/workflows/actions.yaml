@@ -1,3 +1,26 @@
+# This github action workflow will run after a github release is published in your repo
+#
+# Authentication:
+# A VIAM_CLI_AUTH secret is required to be created in your repo.
+# Navigate to Settings -> Secrets and Variables -> Actions to create the secret
+# On the computer that you have used to create the module with the Viam CLI, run:
+# cat ~/.viam/cached_cli_config.json | base64  | pbcopy
+# This will copy your viam credentials into your clipboard which you then paste into your github secret.
+#
+# Release files:
+# This workflow contains an example for how to upload release files to viam.
+# You can edit this file to meet your own needs, otherwise files must be uploaded in the following format.
+# <platform>-<version>.tar.gz
+# For example if uploading a tarball of version 1.2.3 for linux/arm64, the filename should be:
+# linux-arm64-1.2.3.tar.gz
+# 
+# Release process:
+# You can create a release on github.com easily or using some other automated process
+# When creating a release, use a tag with the format of X.Y.X such as 1.2.3.
+# The format of vX.Y.Z is not supported, such as v1.2.3
+# You need to include .tar.gz file for each platform you support while creating the release.
+# Failure to include .tar.gz files when creating the release will result in the action failing.
+# Github automatically includes a .tar.gz containing the source code but this is not compatible and should not be uploaded to viam.
 on:
   workflow_dispatch:
   release:
@@ -31,6 +54,7 @@ jobs:
         mkdir -p ~/.viam
         echo ${{ secrets.VIAM_CLI_AUTH }} | base64 -d > ~/.viam/cached_cli_config.json
   
+    # Duplicate this step for additional platforms you support and want to upload to Viam
     - name: Module Upload for linux/arm64
       working-directory: rdk/cli
       run: go run viam/main.go --base-url='https://app.viam.dev:443' module upload --platform "linux/arm64" --version ${{github.event.release.tag_name}} --module=../../meta.json ../../linux-arm64-${{github.event.release.tag_name}}.tar.gz
