@@ -33,4 +33,4 @@ jobs:
   
     - name: Module Upload for linux/arm64
       working-directory: rdk/cli
-      run: go run viam/main.go --base-url='https://app.viam.dev:443' module upload --platform "linux/arm64" --version ${{github.event.release.tag_name}} --module=../../meta.json ../../viam-modular-resources-${{github.event.release.tag_name}}.tar.gz
+      run: go run viam/main.go --base-url='https://app.viam.dev:443' module upload --platform "linux/arm64" --version ${{github.event.release.tag_name}} --module=../../meta.json ../../linux_arm64_${{github.event.release.tag_name}}-.tar.gz
