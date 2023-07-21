@@ -12,7 +12,7 @@ jobs:
     - name: Check out rdk
       uses: actions/checkout@v3
       with:
-        name: viamrobotics/rdk
+        repository: viamrobotics/rdk
         ref: refs/heads/main
 
   module-upload:
