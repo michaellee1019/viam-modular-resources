@@ -30,4 +30,4 @@ jobs:
   
     - name: Module Upload for linux/arm64
       working-directory: ./rdk/cli
-      run: go run viam/main.go module upload --platform "linux/arm64" --org_id 1a38b76f-cac0-451c-8f72-670994fcaf5b --name "mod2" --version ${{github.event.release.tag_name}} ../../viam-modular-resources-${{github.event.release.tag_name}}.tar.gz
+      run: go run viam/main.go module upload  --base-url='https://app.viam.dev:443' --platform "linux/arm64" --org_id 1a38b76f-cac0-451c-8f72-670994fcaf5b --name "mod2" --version ${{github.event.release.tag_name}} ../../viam-modular-resources-${{github.event.release.tag_name}}.tar.gz
