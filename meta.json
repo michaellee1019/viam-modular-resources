@@ -1,0 +1,13 @@
+{
+  "name": "team-registry:michaellee1019",
+  "visibility": "private",
+  "url": "https://github.com/michaellee1019/viam-modular-resources/",
+  "description": "michael lee's test module",
+  "models": [
+    {
+      "api": "michaellee1019:component:mcp23017",
+      "model": "team-registry:mcp23017:eightsegment"
+    }
+  ],
+  "entrypoint": "main"
+}
