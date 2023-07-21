@@ -7,6 +7,7 @@ on:
 
 jobs:
   checkout-rdk:
+    runs-on: ubuntu-latest
     steps:
     - name: Check out rdk
       uses: actions/checkout@v3
@@ -16,6 +17,7 @@ jobs:
 
   module-upload:
     needs: checkout-rdk
+    runs-on: ubuntu-latest
     steps:
     - working-directory: ./rdk
       run: go run viam/main.go module upload --platform "darwin/amd64" --org_id 1a38b76f-cac0-451c-8f72-670994fcaf5b --name "mod2" --version "1.0.0-dfsaaf" packaged-module.tar.gz
