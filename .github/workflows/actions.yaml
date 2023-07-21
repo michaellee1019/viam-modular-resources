@@ -7,12 +7,15 @@ on:
 
 jobs:
   checkout-rdk:
-    uses: actions/checkout@master
-    with:
-      name: viamrobotics/rdk
-      ref: refs/heads/main
+    steps:
+    - name: Check out rdk
+      uses: actions/checkout@v3
+      with:
+        name: viamrobotics/rdk
+        ref: refs/heads/main
 
   module-upload:
     needs: checkout-rdk
-    working-directory: ./rdk
-    run: go run viam/main.go module upload --platform "darwin/amd64" --org_id 1a38b76f-cac0-451c-8f72-670994fcaf5b --name "mod2" --version "1.0.0-dfsaaf" packaged-module.tar.gz
+      steps:
+        working-directory: ./rdk
+        run: go run viam/main.go module upload --platform "darwin/amd64" --org_id 1a38b76f-cac0-451c-8f72-670994fcaf5b --name "mod2" --version "1.0.0-dfsaaf" packaged-module.tar.gz
