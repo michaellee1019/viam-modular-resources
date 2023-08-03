@@ -28,7 +28,7 @@ ROBOT_SECRET="<secret>" ROBOT_ADDRESS="<address>" python3 src/mcp23017/client.py
 ```
 
 ## Packaging
-```
+
 1. Cleanup previous work: 
 ```rm -rf ~/*```
 
