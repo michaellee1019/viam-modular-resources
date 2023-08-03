@@ -1,17 +1,16 @@
 import sys
-sys.path.append("..")
 
-from typing import ClassVar, Mapping, Sequence
+from typing import ClassVar, Mapping, Sequence, Optional
 
 from typing_extensions import Self
 
 from viam.module.types import Reconfigurable
 from viam.proto.app.robot import ComponentConfig
 from viam.proto.common import ResourceName
+from viam.utils import ValueTypes
 from viam.resource.base import ResourceBase
 from viam.resource.types import Model, ModelFamily
-
-from .apis import MCP23017
+from viam.components.generic import Generic
 
 import smbus
 import time
@@ -98,9 +97,38 @@ bus.write_byte_data(MCP23017_ADDRESS,MCP23017_IODIRB,0x00)
 
 import sys
 
-class EightSegmentLED(MCP23017, Reconfigurable):
+class EightSegmentLED(Generic):
     MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "mcp23017"), "eightsegment")
     device: str
+
+    async def do_command(
+        self,
+        command: Mapping[str, ValueTypes],
+        *,
+        timeout: Optional[float] = None,
+        **kwargs
+    ) -> Mapping[str, ValueTypes]:
+        result = {key: False for key in command.keys()}
+        for (name, args) in command.items():
+            if name == 'flash_word':
+                if 'word' in args:
+                    results = await self.flash_word(args['word'])
+                    result[name] = 'flashed: ' + results
+                else:
+                    result[name] = 'missing word key'
+        return result
+
+    async def flash_word(self, word: str) -> str:
+        for char in word:
+            mapping = mappings.get(char, mappings.get(char.lower(), mappings.get(char.upper())))
+            if mapping is not None:
+                bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOA,mapping['gfedcba'])
+                bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOB,mapping['abcdefg'])
+                time.sleep(0.5)
+                bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOA,0x00)
+                bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOB,0x00)
+                time.sleep(0.5)
+        return word
 
     @classmethod
     def new(cls, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
@@ -118,20 +146,7 @@ class EightSegmentLED(MCP23017, Reconfigurable):
             raise Exception("A device attribute is required for eightsegment component.")
         return None
 
-    async def flash_word(self, word: str, **kwargs) -> None:
-        for char in word:
-            print(char)
-            mapping = mappings.get(char, mappings.get(char.lower(), mappings.get(char.upper())))
-            if mapping is not None:
-                bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOA,mapping['gfedcba'])
-                bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOB,mapping['abcdefg'])
-                time.sleep(0.5)
-                bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOA,0x00)
-                bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOB,0x00)
-                time.sleep(0.5)
-            else:
-                print("nope")
-        pass
+# class EightSegmentLED(MCP23017, Reconfigurable):
 
-    def reconfigure(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
-        self.device = config.attributes.fields["device"]
+#     def reconfigure(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
+#         self.device = config.attributes.fields["device"]
