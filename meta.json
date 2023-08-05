@@ -6,7 +6,10 @@
   "models": [
     {
       "api": "michaellee1019:component:mcp23017",
-      "model": "michaellee1019:mcp23017:eightsegment"
+      "model": "michaellee1019:mcp23017:eightsegment",
+      "example_config": {
+        "device": "value of 'A' or 'B'"
+      }
     }
   ],
   "entrypoint": "main"
