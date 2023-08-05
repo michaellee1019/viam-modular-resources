@@ -52,6 +52,8 @@ pip install google-api-core
 enable 12c on every robot first using `sudo raspi-config`.
 
 Note: Reopen your terminal after running pyinstaller.
+=======
+## Packaging
 
 ### Packaging workflow
 1. Sync files to pi
