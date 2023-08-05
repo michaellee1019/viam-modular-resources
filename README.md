@@ -31,21 +31,33 @@ ROBOT_SECRET="<secret>" ROBOT_ADDRESS="<address>" python3 src/client.py
 This model is an audio output component that plays files stored on the robot itself.
 
 ```
+{"pulse_one":{"address":"0x11", "bit":"0x2", "pulse_seconds": "1"}}
+```
+
+### michaellee1019:grove:4_channel_spdt_relay
+```
 {"play":{"filename":"chaching"}}
 ```
 
 ## Development and Packaging
+### Copy SSH Key
+Save yourself some hassle and time. The first time connecting to a robot, run the following to copy the SSH key to your computer. Afterwards you never have to enter the password again.
+```
+make ssh-keygen target=username@hostname.local
+```
+
 ### Install Prerequisites
-The following needs to be ran on the robot used for packaging, it does not need to be ran on every robot the module is deployed to:
+If you are developing in this package, then run the following command to install all tools needed
+```
+make install-tools target=username@hostname.local
+```
+
+OLD: The following needs to be ran on the robot used for packaging, it does not need to be ran on every robot the module is deployed to:
 ```
 sudo apt-get update
 sudo apt-get install -y python3-pip python3-venv
-pip install pyinstaller
+pip install pyinstaller google-api-python-client smbus
 pip install -U viam-sdk
-pip install smbus
-pip install google-api-python-client
-
-pip install google-api-core
 ```
 
 ### Configuration steps

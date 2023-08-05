@@ -12,5 +12,5 @@
       }
     }
   ],
-  "entrypoint": "main"
+  "entrypoint": "dist/main"
 }
