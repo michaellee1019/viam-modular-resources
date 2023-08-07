@@ -39,6 +39,10 @@ This model is an audio output component that plays files stored on the robot its
 {"play":{"filename":"chaching"}}
 ```
 
+### michaellee1019:vk16k33:sixteen_segment_led
+https://github.com/sparkfun/SparkFun_Alphanumeric_Display_Arduino_Library/blob/main/src/SparkFun_Alphanumeric_Display.cpp
+https://github.com/sparkfun/SparkFun_Alphanumeric_Display_Arduino_Library/blob/db56283074eeac8e1799aad123f1e488860a286f/src/SparkFun_Alphanumeric_Display.h#L117
+
 ## Development and Packaging
 ### Copy SSH Key
 Save yourself some hassle and time. The first time connecting to a robot, run the following to copy the SSH key to your computer. Afterwards you never have to enter the password again.
