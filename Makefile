@@ -15,8 +15,9 @@ robot-install:
 
 robot-copy:
 	echo "copying files to $(target)"
-	ssh $(target) "rm -rf ~/src"
+	ssh $(target) "rm -rf ~/src; rm -f meta.json;"
 	scp -r src $(target):~/
+	scp meta.json $(target):~/meta.json
 
 robot-test:
 	echo "running modules on $(target)"

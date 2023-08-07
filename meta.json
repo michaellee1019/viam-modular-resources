@@ -5,11 +5,16 @@
   "description": "michael lee's test module",
   "models": [
     {
-      "api": "michaellee1019:component:mcp23017",
-      "model": "michaellee1019:mcp23017:eightsegment",
-      "example_config": {
-        "device": "value of 'A' or 'B'"
-      }
+      "api": "rdk:component:generic",
+      "model": "michaellee1019:mcp23017:eightsegment"
+    },
+    {
+      "api": "rdk:component:generic",
+      "model": "michaellee1019:audio_output:play_file"
+    },
+    {
+      "api": "rdk:component:generic",
+      "model": "michaellee1019:grove:4_channel_spdt_relay"
     }
   ],
   "entrypoint": "dist/main"
