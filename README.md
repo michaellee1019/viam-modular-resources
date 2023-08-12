@@ -39,9 +39,29 @@ This model is an audio output component that plays files stored on the robot its
 {"play":{"filename":"chaching"}}
 ```
 
-### michaellee1019:vk16k33:sixteen_segment_led
-https://github.com/sparkfun/SparkFun_Alphanumeric_Display_Arduino_Library/blob/main/src/SparkFun_Alphanumeric_Display.cpp
-https://github.com/sparkfun/SparkFun_Alphanumeric_Display_Arduino_Library/blob/db56283074eeac8e1799aad123f1e488860a286f/src/SparkFun_Alphanumeric_Display.h#L117
+### michaellee1019:ht16k33
+The ht16k33 family of components is a Viam wrapper around the [Adafruit_CircuitPython_HT16K33](https://github.com/adafruit/Adafruit_CircuitPython_HT16K33/) library.
+
+#### seg_14_x_4
+This component supports 14-segment LED devices that have a four character display in each device. Depending on the device you can chain multiple displays together on the same channel, usually by soldering contacts that change the i2c address. Put each device address into the address array when wanting to string together the characters in each display.
+
+Example Config
+```
+{
+      "model": "michaellee1019:ht16k33:seg_14_x_4",
+      "name": "segments",
+      "type": "generic",
+      "attributes": {
+        "address": ["0x70","0x71"]
+      },
+      "depends_on": []
+}
+```
+
+Example Do Command
+```
+{"marquee":{"text":"MICHAELLEE1019"}}
+```
 
 ## Development and Packaging
 ### Copy SSH Key

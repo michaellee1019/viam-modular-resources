@@ -10,10 +10,12 @@ from viam.components.generic import Generic
 from models import EightSegmentLED
 from models import AudioOutputPlayFile
 from models import Grove4ChannelSPDTRelay
+from models import Ht16k33_Seg14x4
 
 Registry.register_resource_creator(Generic.SUBTYPE, EightSegmentLED.MODEL, ResourceCreatorRegistration(EightSegmentLED.new, EightSegmentLED.validate_config))
 Registry.register_resource_creator(Generic.SUBTYPE, AudioOutputPlayFile.MODEL, ResourceCreatorRegistration(AudioOutputPlayFile.new, AudioOutputPlayFile.validate_config))
 Registry.register_resource_creator(Generic.SUBTYPE, Grove4ChannelSPDTRelay.MODEL, ResourceCreatorRegistration(Grove4ChannelSPDTRelay.new, Grove4ChannelSPDTRelay.validate_config))
+Registry.register_resource_creator(Generic.SUBTYPE, Ht16k33_Seg14x4.MODEL, ResourceCreatorRegistration(Ht16k33_Seg14x4.new, Ht16k33_Seg14x4.validate_config))
 
 async def main():
     """This function creates and starts a new module, after adding all desired resources.
@@ -27,6 +29,7 @@ async def main():
     module.add_model_from_registry(Generic.SUBTYPE, EightSegmentLED.MODEL)
     module.add_model_from_registry(Generic.SUBTYPE, AudioOutputPlayFile.MODEL)
     module.add_model_from_registry(Generic.SUBTYPE, Grove4ChannelSPDTRelay.MODEL)
+    module.add_model_from_registry(Generic.SUBTYPE, Ht16k33_Seg14x4.MODEL)
     await module.start()
 
 if __name__ == "__main__":

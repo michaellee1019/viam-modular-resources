@@ -88,7 +88,7 @@ MODE = 'gfedcba'
 import sys
 
 class EightSegmentLED(Generic):
-    MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "mcp23017"), "eightsegment")
+    MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "mcp23017"), "eight_segment")
     device: str
     bus = None
 
@@ -147,7 +147,7 @@ class EightSegmentLED(Generic):
         # also return a sequence of strings representing the implicit dependencies of the resource.
         device = config.attributes.fields["device"]
         if device is None:
-            raise Exception("A device attribute is required for eightsegment component.")
+            raise Exception("A device attribute is required for eight_segment component.")
         return None
 
 class AudioOutputPlayFile(Generic):
@@ -244,4 +244,61 @@ class Grove4ChannelSPDTRelay(Generic):
         # Custom validation can be done by specifiying a validate function like this one. Validate functions
         # can raise errors that will be returned to the parent through gRPC. Validate functions can
         # also return a sequence of strings representing the implicit dependencies of the resource.
+        return None
+
+# Import all board pins and bus interface.
+import board
+import busio
+
+# Import the HT16K33 LED matrix module.
+from adafruit_ht16k33 import segments
+
+class Ht16k33_Seg14x4(Generic):
+    MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "ht16k33"), "seg_14_x_4")
+    i2c = None
+    segs = None
+
+    async def do_command(
+        self,
+        command: Mapping[str, ValueTypes],
+        *,
+        timeout: Optional[float] = None,
+        **kwargs
+    ) -> Mapping[str, ValueTypes]:
+        result = {key: False for key in command.keys()}
+        for (name, args) in command.items():
+            if name == 'marquee':
+                if 'text' in args:
+                    await self.marquee(args['text'], args.get('delay'), args.get('loop'),)
+                    result[name] = True
+                else:
+                    result[name] = 'missing text parameter'
+        return result
+
+    #TODO fix async issues.
+    async def marquee(self, text: str, delay: float, loop: bool) -> None:
+        self.segs.marquee(text) #delay=delay, loop=loop)
+
+    @classmethod
+    def new(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
+        self.i2c = busio.I2C(board.SCL, board.SDA)
+        
+        addresses = config.attributes.fields["address"].list_value
+        hex_addresses=[]
+        for address in addresses:
+            hex_addresses.append(int(address,16))
+        
+        self.segs = segments.Seg14x4(i2c=self.i2c, address=hex_addresses, auto_write=True, chars_per_display=4)
+
+        output = self(config.name)
+        return output
+
+    @classmethod
+    def validate_config(self, config: ComponentConfig) -> None:
+        address = config.attributes.fields["address"].list_value
+        if address is None:
+            raise Exception('A address attribute is required for seg_14_x_4 component. Must be a string array of 1 or more addresses in hexidecimal format such as "0x00".')
+        
+        # TODO: assert len()>1, parse addresses here
+        
         return None
