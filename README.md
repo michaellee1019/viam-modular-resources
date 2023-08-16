@@ -28,15 +28,33 @@ This can be ran on the robot or on any computer with python installed. Must inst
 ROBOT_SECRET="<secret>" ROBOT_ADDRESS="<address>" python3 src/client.py
 ```
 ### michaellee1019:audio_output:play_file
-This model is an audio output component that plays files stored on the robot itself.
+This model is an audio output component that plays files stored on the robot itself. The implementation is a wrapper on [pygame](http://www.pygame.org/docs/ref/music.html) which supports various file types.
+
+Example Config:
+```
+{
+  "files": {
+    "name_of_sound": "/path/to/sound.mp3"
+  }
+}
+```
+
+This config sets a mapping of sound names to the filepath destination on the robot, allowing control code of the robot through SDK to not care about the file structure on a robot.
+
+Example Do Command:
+```
+{"play":{"filename":"chaching"}}
+```
+
+By default the sound will play out of the audio output jack on the board. The module does not currently allow configuration of sound settings, and need to be done manually. On most boards audio is enabled by default. Optionally you can update a RaspberryPi to stream the output instead to GPIO pins, using this command:
 
 ```
-{"pulse_one":{"address":"0x11", "bit":"0x2", "pulse_seconds": "1"}}
+sudo dtoverlay audremap pins_18_19
 ```
 
 ### michaellee1019:grove:4_channel_spdt_relay
 ```
-{"play":{"filename":"chaching"}}
+{"pulse_one":{"address":"0x11", "bit":"0x2", "pulse_seconds": "1"}}
 ```
 
 ### michaellee1019:ht16k33
