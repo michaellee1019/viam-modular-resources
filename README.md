@@ -43,7 +43,7 @@ This config sets a mapping of sound names to the filepath destination on the rob
 
 Example Do Command:
 ```
-{"play":{"filename":"chaching"}}
+{"play":{"filename":"name_of_sound"}}
 ```
 
 By default the sound will play out of the audio output jack on the board. The module does not currently allow configuration of sound settings, and need to be done manually. On most boards audio is enabled by default. Optionally you can update a RaspberryPi to stream the output instead to GPIO pins, using this command:
