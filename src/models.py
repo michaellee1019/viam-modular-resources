@@ -269,15 +269,27 @@ class Ht16k33_Seg14x4(Generic):
         for (name, args) in command.items():
             if name == 'marquee':
                 if 'text' in args:
+                    #TODO: NoneType is not converted to None
                     await self.marquee(args['text'], args.get('delay'), args.get('loop'),)
                     result[name] = True
                 else:
                     result[name] = 'missing text parameter'
+            if name == 'print':
+                if 'value' in args:
+                    #TODO: NoneType is not converted to None
+                    self.print(args['value'], args.get('decimal'))
+                    result[name] = True
+                else:
+                    result[name] = 'missing value parameter'
         return result
 
-    #TODO fix async issues.
+    
     async def marquee(self, text: str, delay: float, loop: bool) -> None:
-        self.segs.marquee(text) #delay=delay, loop=loop)
+        # TODO fix async issues and allow loop
+        self.segs.marquee(text, loop = False) #delay=delay, loop=loop)
+
+    def print(self, value, decimal: int = 0) -> None: #value: str | float
+        self.segs.print(value, decimal = decimal)
 
     @classmethod
     def new(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:

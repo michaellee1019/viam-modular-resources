@@ -81,6 +81,14 @@ Example Do Command
 {"marquee":{"text":"MICHAELLEE1019"}}
 ```
 
+```
+{"print":{"value":3.14159265,"decimal":2}}
+```
+
+```
+{"print":{"value":"ELLO POPPET"}}
+```
+
 ## Development and Packaging
 ### Copy SSH Key
 Save yourself some hassle and time. The first time connecting to a robot, run the following to copy the SSH key to your computer. Afterwards you never have to enter the password again.
@@ -88,44 +96,41 @@ Save yourself some hassle and time. The first time connecting to a robot, run th
 make ssh-keygen target=username@hostname.local
 ```
 
-### Install Prerequisites
-If you are developing in this package, then run the following command to install all tools needed
+### Robot Config
 ```
-make install-tools target=username@hostname.local
+"modules": [
+    {
+      "executable_path": "/viam-modular-resources-build",
+      "type": "local",
+      "name": "build"
+    },
+    {
+      "executable_path": "/home/username/test.sh",
+      "type": "local",
+      "name": "test"
+    }
+  ]
 ```
 
-OLD: The following needs to be ran on the robot used for packaging, it does not need to be ran on every robot the module is deployed to:
+### Testing Workflow
+If you are developing in this package, you can test changes to models by running an unpackaged version of the module. This will also immediately start your program, giving you feedback about any runtime errors your program has.
+
 ```
-sudo apt-get update
-sudo apt-get install -y python3-pip python3-venv
-pip install pyinstaller google-api-python-client smbus
-pip install -U viam-sdk
+make robot-runtime-test-workflow target=username@hostname.local
 ```
 
-### Configuration steps
-enable 12c on every robot first using `sudo raspi-config`.
-
-Note: Reopen your terminal after running pyinstaller.
+If you receive the exception "Need socket path as command line argument", then there are no runtime errors detected and next should look at the robot logs and check for issues there. Finally, test your robot using the control tab.
 
 ### Packaging workflow
-1. Sync files to pi
-```scp -r /Users/michaellee/show/MCP23017_Base/custom/src  lights@lightsmichael:/home/lights/MCP23017_API```
 
-1. Package into binary, and test on Viam RDK, restarting RDK between builds (otherwise new binaries do not get picked up)
-```
- rm -rf ~/dist ; rm -rf ~/build ; rm main.spec ;
- pyinstaller --onefile --hidden-import="googleapiclient" ~/viam-modular-resources/src/main.py && sudo rm /main ; sudo cp dist/main /main && sudo systemctl restart viam-server && echo "done"
-```
+1. Run the Testing Workflow at least once, as the process will install all dependencies onto the pi that will be used for packaging.
+1. Run the following to package the program into a python binary using pyinstaller.
 
-1. Sync binary back
 ```
-scp lights@lightsmichael:/home/lights/dist/main main 
+make robot-deploy-workflow target=username@hostname.local
 ```
 
-1. Compress and archive into tar.gz
-```
-tar -czvf archive.tar.gz main
-```
+TODO
 
 1. Upload to registry
 ```
