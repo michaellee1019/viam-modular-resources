@@ -1,0 +1,6 @@
+viam-sdk
+pyinstaller
+google-api-python-client
+smbus
+pygame
+adafruit-circuitpython-ht16k33

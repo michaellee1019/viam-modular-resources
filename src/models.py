@@ -14,7 +14,6 @@ from viam.resource.types import Model, ModelFamily
 from viam.components.generic import Generic
 from google.protobuf import json_format
 
-import smbus
 import time
 import pygame
 
@@ -87,68 +86,68 @@ MODE = 'gfedcba'
 
 import sys
 
-class EightSegmentLED(Generic):
-    MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "mcp23017"), "eight_segment")
-    device: str
-    bus = None
+# class EightSegmentLED(Generic):
+#     MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "mcp23017"), "eight_segment")
+#     device: str
+#     bus = None
 
-    async def do_command(
-        self,
-        command: Mapping[str, ValueTypes],
-        *,
-        timeout: Optional[float] = None,
-        **kwargs
-    ) -> Mapping[str, ValueTypes]:
-        result = {key: False for key in command.keys()}
-        for (name, args) in command.items():
-            if name == 'flash_word':
-                if 'word' in args:
-                    results = await self.flash_word(args['word'])
-                    result[name] = 'flashed: ' + results
-                else:
-                    result[name] = 'missing word key'
-        return result
+#     async def do_command(
+#         self,
+#         command: Mapping[str, ValueTypes],
+#         *,
+#         timeout: Optional[float] = None,
+#         **kwargs
+#     ) -> Mapping[str, ValueTypes]:
+#         result = {key: False for key in command.keys()}
+#         for (name, args) in command.items():
+#             if name == 'flash_word':
+#                 if 'word' in args:
+#                     results = await self.flash_word(args['word'])
+#                     result[name] = 'flashed: ' + results
+#                 else:
+#                     result[name] = 'missing word key'
+#         return result
 
-    async def flash_word(self, word: str) -> str:
-        for char in word:
-            mapping = mappings.get(char, mappings.get(char.lower(), mappings.get(char.upper())))
-            if mapping is not None:
-                self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOA,mapping['gfedcba'])
-                self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOB,mapping['abcdefg'])
-                time.sleep(0.5)
-                self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOA,0x00)
-                self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOB,0x00)
-                time.sleep(0.5)
-        return word
+#     async def flash_word(self, word: str) -> str:
+#         for char in word:
+#             mapping = mappings.get(char, mappings.get(char.lower(), mappings.get(char.upper())))
+#             if mapping is not None:
+#                 self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOA,mapping['gfedcba'])
+#                 self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOB,mapping['abcdefg'])
+#                 time.sleep(0.5)
+#                 self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOA,0x00)
+#                 self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_GPIOB,0x00)
+#                 time.sleep(0.5)
+#         return word
 
-    @classmethod
-    def new(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
-        self.bus = smbus.SMBus(1)
+#     @classmethod
+#     def new(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
+#         self.bus = smbus.SMBus(1)
 
-        #Configue the register to default value
-        for addr in range(22):
-            if (addr == 0) or (addr == 1):
-                self.bus.write_byte_data(MCP23017_ADDRESS, addr, 0xFF)
-            else:
-                self.bus.write_byte_data(MCP23017_ADDRESS, addr, 0x00)
+#         #Configue the register to default value
+#         for addr in range(22):
+#             if (addr == 0) or (addr == 1):
+#                 self.bus.write_byte_data(MCP23017_ADDRESS, addr, 0xFF)
+#             else:
+#                 self.bus.write_byte_data(MCP23017_ADDRESS, addr, 0x00)
 
-        #configue all PinA + PinB output
-        self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_IODIRA,0x00)
-        self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_IODIRB,0x00)
+#         #configue all PinA + PinB output
+#         self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_IODIRA,0x00)
+#         self.bus.write_byte_data(MCP23017_ADDRESS,MCP23017_IODIRB,0x00)
 
-        output = self(config.name)
-        output.device = config.attributes.fields["device"].string_value
-        return output
+#         output = self(config.name)
+#         output.device = config.attributes.fields["device"].string_value
+#         return output
 
-    @classmethod
-    def validate_config(self, config: ComponentConfig) -> None:
-        # Custom validation can be done by specifiying a validate function like this one. Validate functions
-        # can raise errors that will be returned to the parent through gRPC. Validate functions can
-        # also return a sequence of strings representing the implicit dependencies of the resource.
-        device = config.attributes.fields["device"]
-        if device is None:
-            raise Exception("A device attribute is required for eight_segment component.")
-        return None
+#     @classmethod
+#     def validate_config(self, config: ComponentConfig) -> None:
+#         # Custom validation can be done by specifiying a validate function like this one. Validate functions
+#         # can raise errors that will be returned to the parent through gRPC. Validate functions can
+#         # also return a sequence of strings representing the implicit dependencies of the resource.
+#         device = config.attributes.fields["device"]
+#         if device is None:
+#             raise Exception("A device attribute is required for eight_segment component.")
+#         return None
 
 class AudioOutputPlayFile(Generic):
     MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "audio_output"), "play_file")
@@ -164,8 +163,8 @@ class AudioOutputPlayFile(Generic):
         result = {key: False for key in command.keys()}
         for (name, args) in command.items():
             if name == 'play':
-                if 'filename' in args:
-                    results = await self.play_file(args['filename'])
+                if 'sound' in args:
+                    results = await self.play_file(args['sound'])
                     result[name] = 'played: ' + results
                 else:
                     result[name] = 'missing filename key'
@@ -199,118 +198,118 @@ class AudioOutputPlayFile(Generic):
             raise Exception("A files attribute is required for playfile component.")
         return None
 
-CMD_CHANNEL_CTRL=0x10
-CMD_SAVE_I2C_ADDR=0x11
-CMD_READ_I2C_ADDR=0x12
-CMD_READ_FIRMWARE_VER=0x13
+# CMD_CHANNEL_CTRL=0x10
+# CMD_SAVE_I2C_ADDR=0x11
+# CMD_READ_I2C_ADDR=0x12
+# CMD_READ_FIRMWARE_VER=0x13
 
-class Grove4ChannelSPDTRelay(Generic):
-    MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "grove"), "4_channel_spdt_relay")
-    bus = None
+# class Grove4ChannelSPDTRelay(Generic):
+#     MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "grove"), "4_channel_spdt_relay")
+#     bus = None
 
-    async def do_command(
-        self,
-        command: Mapping[str, ValueTypes],
-        *,
-        timeout: Optional[float] = None,
-        **kwargs
-    ) -> Mapping[str, ValueTypes]:
-        result = {key: False for key in command.keys()}
-        for (name, args) in command.items():
-            if name == 'pulse_one':
-                if all(arg in args for arg in ("address","bit","pulse_seconds")):
-                    results = await self.pulse_one(args['address'], args['bit'], args['pulse_seconds'])
-                    result[name] = 'pulsed: ' + results
-                else:
-                    result[name] = 'missing address, bit, or pulse_seconds parameters'
-        return result
+#     async def do_command(
+#         self,
+#         command: Mapping[str, ValueTypes],
+#         *,
+#         timeout: Optional[float] = None,
+#         **kwargs
+#     ) -> Mapping[str, ValueTypes]:
+#         result = {key: False for key in command.keys()}
+#         for (name, args) in command.items():
+#             if name == 'pulse_one':
+#                 if all(arg in args for arg in ("address","bit","pulse_seconds")):
+#                     results = await self.pulse_one(args['address'], args['bit'], args['pulse_seconds'])
+#                     result[name] = 'pulsed: ' + results
+#                 else:
+#                     result[name] = 'missing address, bit, or pulse_seconds parameters'
+#         return result
 
-    async def pulse_one(self, address: str, bit: str, pulse_seconds: str) -> str:
-        hex_address = int(address, 16)
-        hex_bit = int(bit, 16)
-        self.bus.write_byte_data(hex_address,CMD_CHANNEL_CTRL,hex_bit)
-        time.sleep(float(pulse_seconds))
-        self.bus.write_byte_data(hex_address,CMD_CHANNEL_CTRL,0x00)
-        return "{0} {1}".format(hex(hex_address), hex(hex_bit))
+#     async def pulse_one(self, address: str, bit: str, pulse_seconds: str) -> str:
+#         hex_address = int(address, 16)
+#         hex_bit = int(bit, 16)
+#         self.bus.write_byte_data(hex_address,CMD_CHANNEL_CTRL,hex_bit)
+#         time.sleep(float(pulse_seconds))
+#         self.bus.write_byte_data(hex_address,CMD_CHANNEL_CTRL,0x00)
+#         return "{0} {1}".format(hex(hex_address), hex(hex_bit))
 
-    @classmethod
-    def new(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
-        self.bus = smbus.SMBus(1)
-        output = self(config.name)
-        return output
+#     @classmethod
+#     def new(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
+#         self.bus = smbus.SMBus(1)
+#         output = self(config.name)
+#         return output
 
-    @classmethod
-    def validate_config(self, config: ComponentConfig) -> None:
-        # Custom validation can be done by specifiying a validate function like this one. Validate functions
-        # can raise errors that will be returned to the parent through gRPC. Validate functions can
-        # also return a sequence of strings representing the implicit dependencies of the resource.
-        return None
+#     @classmethod
+#     def validate_config(self, config: ComponentConfig) -> None:
+#         # Custom validation can be done by specifiying a validate function like this one. Validate functions
+#         # can raise errors that will be returned to the parent through gRPC. Validate functions can
+#         # also return a sequence of strings representing the implicit dependencies of the resource.
+#         return None
 
-# Import all board pins and bus interface.
-import board
-import busio
+# # Import all board pins and bus interface.
+# import board
+# import busio
 
-# Import the HT16K33 LED matrix module.
-from adafruit_ht16k33 import segments
+# # Import the HT16K33 LED matrix module.
+# from adafruit_ht16k33 import segments
 
-class Ht16k33_Seg14x4(Generic):
-    MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "ht16k33"), "seg_14_x_4")
-    i2c = None
-    segs = None
+# class Ht16k33_Seg14x4(Generic):
+#     MODEL: ClassVar[Model] = Model(ModelFamily("michaellee1019", "ht16k33"), "seg_14_x_4")
+#     i2c = None
+#     segs = None
 
-    async def do_command(
-        self,
-        command: Mapping[str, ValueTypes],
-        *,
-        timeout: Optional[float] = None,
-        **kwargs
-    ) -> Mapping[str, ValueTypes]:
-        result = {key: False for key in command.keys()}
-        for (name, args) in command.items():
-            if name == 'marquee':
-                if 'text' in args:
-                    #TODO: NoneType is not converted to None
-                    await self.marquee(args['text'], args.get('delay'), args.get('loop'),)
-                    result[name] = True
-                else:
-                    result[name] = 'missing text parameter'
-            if name == 'print':
-                if 'value' in args:
-                    #TODO: NoneType is not converted to None
-                    self.print(args['value'], args.get('decimal'))
-                    result[name] = True
-                else:
-                    result[name] = 'missing value parameter'
-        return result
+#     async def do_command(
+#         self,
+#         command: Mapping[str, ValueTypes],
+#         *,
+#         timeout: Optional[float] = None,
+#         **kwargs
+#     ) -> Mapping[str, ValueTypes]:
+#         result = {key: False for key in command.keys()}
+#         for (name, args) in command.items():
+#             if name == 'marquee':
+#                 if 'text' in args:
+#                     #TODO: NoneType is not converted to None
+#                     await self.marquee(args['text'], args.get('delay'), args.get('loop'),)
+#                     result[name] = True
+#                 else:
+#                     result[name] = 'missing text parameter'
+#             if name == 'print':
+#                 if 'value' in args:
+#                     #TODO: NoneType is not converted to None
+#                     self.print(args['value'], args.get('decimal'))
+#                     result[name] = True
+#                 else:
+#                     result[name] = 'missing value parameter'
+#         return result
 
     
-    async def marquee(self, text: str, delay: float, loop: bool) -> None:
-        # TODO fix async issues and allow loop
-        self.segs.marquee(text, loop = False) #delay=delay, loop=loop)
+#     async def marquee(self, text: str, delay: float, loop: bool) -> None:
+#         # TODO fix async issues and allow loop
+#         self.segs.marquee(text, loop = False) #delay=delay, loop=loop)
 
-    def print(self, value, decimal: int = 0) -> None: #value: str | float
-        self.segs.print(value, decimal = decimal)
+#     def print(self, value, decimal: int = 0) -> None: #value: str | float
+#         self.segs.print(value, decimal = decimal)
 
-    @classmethod
-    def new(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
-        self.i2c = busio.I2C(board.SCL, board.SDA)
+#     @classmethod
+#     def new(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
+#         self.i2c = busio.I2C(board.SCL, board.SDA)
         
-        addresses = config.attributes.fields["address"].list_value
-        hex_addresses=[]
-        for address in addresses:
-            hex_addresses.append(int(address,16))
+#         addresses = config.attributes.fields["address"].list_value
+#         hex_addresses=[]
+#         for address in addresses:
+#             hex_addresses.append(int(address,16))
         
-        self.segs = segments.Seg14x4(i2c=self.i2c, address=hex_addresses, auto_write=True, chars_per_display=4)
+#         self.segs = segments.Seg14x4(i2c=self.i2c, address=hex_addresses, auto_write=True, chars_per_display=4)
 
-        output = self(config.name)
-        return output
+#         output = self(config.name)
+#         return output
 
-    @classmethod
-    def validate_config(self, config: ComponentConfig) -> None:
-        address = config.attributes.fields["address"].list_value
-        if address is None:
-            raise Exception('A address attribute is required for seg_14_x_4 component. Must be a string array of 1 or more addresses in hexidecimal format such as "0x00".')
+#     @classmethod
+#     def validate_config(self, config: ComponentConfig) -> None:
+#         address = config.attributes.fields["address"].list_value
+#         if address is None:
+#             raise Exception('A address attribute is required for seg_14_x_4 component. Must be a string array of 1 or more addresses in hexidecimal format such as "0x00".')
         
-        # TODO: assert len()>1, parse addresses here
+#         # TODO: assert len()>1, parse addresses here
         
-        return None
+#         return None
