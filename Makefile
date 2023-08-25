@@ -47,3 +47,5 @@ robot-deploy-workflow: robot-copy robot-build robot-deploy robot-restart module-
 robot-package-workflow: robot-copy robot-build module-package
 
 robot-runtime-test-workflow: robot-copy robot-runtime-test
+
+robot-repl: robot-copy robot-restart
