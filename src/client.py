@@ -6,8 +6,6 @@ from viam.robot.client import RobotClient
 from viam.rpc.dial import Credentials, DialOptions
 from viam.components.generic import Generic
 
-from typing import List, Optional, Tuple
-
 
 def _getenv(key: str) -> str:
     out = os.getenv(key)
@@ -16,17 +14,15 @@ def _getenv(key: str) -> str:
     return out
 
 
-def _credentials() -> Credentials:
-    secret = _getenv('ROBOT_SECRET')
-    return Credentials(type="robot-location-secret",
-                       payload=secret)
-
-
 async def get_client() -> RobotClient:
-    creds = _credentials()
+    address = _getenv('ROBOT_ADDRESS')
+
+    secret = _getenv('ROBOT_SECRET')
+    creds = Credentials(type="robot-location-secret",
+                        payload=secret)
+
     refresh_interval = 0
     log_level = logging.DEBUG
-    address = _getenv('ROBOT_ADDRESS')
 
     dial_options = DialOptions(credentials=creds)
     opts = RobotClient.Options(refresh_interval=refresh_interval,
