@@ -37,7 +37,7 @@ async def main():
     print("Resources:")
     print(robot.resource_names)
 
-    mcp = Generic.from_robot(robot, name="mcp")
+    mcp = Generic.from_robot(robot, name="blinds")
 
     response = await mcp.do_command({"flash_word": {"word": "ASDF"}})
     print(f"LED Should have Flashed 'HELLO'")
