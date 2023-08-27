@@ -1,14 +1,15 @@
 # viam-modular-resources
+This repository contains a monolith of [Viam Robotics Modular Resources](https://docs.viam.com/extend/modular-resources/) that I have needed support for in my hobby projects.
 
 ## Models included
 ### michaellee1019:mcp23017:eightsegment
-This model utilizes an MCP23017 chip to control an Eight Segment LED. Currently alpha-numeric characters are supported. Some characters are not printed and are ignored when they cannot be displayed.
+This model utilizes an MCP23017 chip to control an Eight Segment LED. Currently alpha-numeric characters are supported, but some characters are not printed and are ignored when they cannot be displayed.
 
 Example Config:
 ```
 {
       "model": "michaellee1019:mcp23017:eightsegment",
-      "name": "mcp",
+      "name": "my-model",
       "type": "generic",
       "attributes": {
         "device": "B" // not used yet, for the future
@@ -46,22 +47,35 @@ Example Do Command:
 {"play":{"sound":"name_of_sound"}}
 ```
 
-By default the sound will play out of the audio output jack on the board. The module does not currently allow configuration of sound settings, and need to be done manually. On most boards audio is enabled by default. Optionally you can update a RaspberryPi to stream the output instead to GPIO pins, using this command:
+By default the sound will play out of the audio output jack on the board. The module does not currently allow configuration of sound settings, and need to be done manually. On most boards audio is enabled by default. Optionally you can update a Raspberry Pi to stream the output instead to GPIO pins, using this command:
 
 ```
 sudo dtoverlay audremap pins_18_19
 ```
-
+Then connect the an amplifier, such as a [PAM8403](https://www.amazon.com//dp/B00M0F1LJW/) to GPIO pins 18 and 19.
 ### michaellee1019:grove:4_channel_spdt_relay
+This model implements support for the [Grove 4 Channel SPDT Relay](https://www.seeedstudio.com/Grove-4-Channel-SPDT-Relay-p-3119.html).
+
+Example Config:
+```
+{
+  "attributes": {},
+  "depends_on": [],
+  "model": "michaellee1019:grove:4_channel_spdt_relay",
+  "name": "my-model",
+  "type": "generic"
+}
+```
+
 ```
 {"pulse_one":{"address":"0x11", "bit":"0x2", "pulse_seconds": "1"}}
 ```
 
 ### michaellee1019:ht16k33
-The ht16k33 family of components is a Viam wrapper around the [Adafruit_CircuitPython_HT16K33](https://github.com/adafruit/Adafruit_CircuitPython_HT16K33/) library.
+The ht16k33 family of components is a Viam wrapper around the [Adafruit_CircuitPython_HT16K33](https://github.com/adafruit/Adafruit_CircuitPython_HT16K33/) library. The model has also been tested and works with the vk16k33 family of components which functionality is similar to the ht16k33.
 
 #### seg_14_x_4
-This component supports 14-segment LED devices that have a four character display in each device. Depending on the device you can chain multiple displays together on the same channel, usually by soldering contacts that change the i2c address. Put each device address into the address array when wanting to string together the characters in each display.
+This component supports 14-segment LED devices that have a four character display in each device. Depending on the device you can chain multiple displays together on the same channel, usually by soldering contacts that change the i2c address. Put each device address into the address array when wanting to string together the characters in each display, in the order that they are physically positioned from left to right.
 
 Example Config
 ```
@@ -76,20 +90,26 @@ Example Config
 }
 ```
 
-Example Do Command
+Example Do Commands:
+
+Marquee text across the display once. Repeating marquee is currently not supported.
 ```
 {"marquee":{"text":"MICHAELLEE1019"}}
 ```
 
-```
-{"print":{"value":3.14159265,"decimal":2}}
-```
-
+Print text onto the display. This method does not clear existing characters so it is recommended to pad the text with space chacters.
 ```
 {"print":{"value":"ELLO POPPET"}}
 ```
 
-## Development and Packaging
+Print number. Optionally, provide `decimal` to round the number to a specific number of points.
+```
+{"print":{"value":3.14159265,"decimal":2}}
+```
+
+## Development
+Read this section if developing within this repository.
+
 ### Copy SSH Key
 Save yourself some hassle and time. The first time connecting to a robot, run the following to copy the SSH key to your computer. Afterwards you never have to enter the password again.
 ```
@@ -112,32 +132,56 @@ make ssh-keygen target=username@hostname.local
   ]
 ```
 
+## Development Workflow
+For a faster development cycle, follow the steps below, except run python directly instead of pyinstaller. This will do some runtime evaluation and return errors. If you get to the point where it warns of missing socket arguments, you have to deploy as a module and follow the full steps below.
+
+```
+make development-workflow  target=username@hostname.local
+```
+
 ### Testing Workflow
-If you are developing in this package, you can test changes to models by running an unpackaged version of the module. This will also immediately start your program, giving you feedback about any runtime errors your program has.
+Test changes to models by running an unpackaged version of the module on a single robot. This command will copy code onto your robot and make the module ready to start by Viam. This is the fastest option provided to iterate with your code using a real robot to test hardware.
 
 ```
-make robot-runtime-test-workflow target=username@hostname.local
+make test-workflow target=username@hostname.local
 ```
 
-If you receive the exception "Need socket path as command line argument", then there are no runtime errors detected and next should look at the robot logs and check for issues there. Finally, test your robot using the control tab.
+The following configuration needs to be added to your Viam robot. It points to the [test.sh](test.sh) file which installs the required dependencies, and then starts the module program. Note that `test-workflow` restarts `viam-server` each time it is ran, which is required to reload any code that has changed in the module.
+
+```
+"modules": [
+    {
+      "executable_path": "/home/username/test.sh",
+      "type": "local",
+      "name": "test"
+    }
+  ]
+```
 
 ### Packaging workflow
+The package workflow is used to generate a bundle of your module. It utilizes [pyinstaller](https://pyinstaller.org/en/stable/) to produce a single file containing all dependencies as well as the python runtime. Packaging the module means it can be deployed to any board with a compatible platform without installing any dependencies.
 
-1. Run the Testing Workflow at least once, as the process will install all dependencies onto the pi that will be used for packaging.
-1. Run the following to package the program into a python binary using pyinstaller.
+**Note:** Run the Development Workflow at least once, as the process will install all dependencies onto the pi that will be used for packaging.
 
 ```
-make robot-deploy-workflow target=username@hostname.local
+make package-workflow target=username@hostname.local
 ```
 
-TODO
+The workflow will copy the bundle into the root directory for you to try running on your robot. Do this to make sure the packaged module works before sharing with others.
+```
+"modules": [
+    {
+      "executable_path": "/viam-module",
+      "type": "local",
+      "name": "packaged"
+    }
+  ]
+``` 
 
-1. Upload to registry
+### Upload to Viam
+You can upload the packaged moduled to Viam to use on multiple robots within your organization, or can make it public to share with others.
+1. Install the Viam CLI 
+1. Upload to registry using the CLI
 ```
 viam module upload --version <version> --platform linux/arm64 archive.tar.gz
 ```
-
-## Development
-For a faster development cycle, follow the steps below, except run python directly instead of pyinstaller. This will do some runtime evaluation and return errors. If you get to the point where it warns of missing socket arguments, you have to deploy as a module and follow the full steps below.
-
-```python ~/viam_modular_resources/src/main.py```
