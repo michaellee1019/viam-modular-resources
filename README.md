@@ -77,6 +77,8 @@ The ht16k33 family of components is a Viam wrapper around the [Adafruit_CircuitP
 #### seg_14_x_4
 This component supports 14-segment LED devices that have a four character display in each device. Depending on the device you can chain multiple displays together on the same channel, usually by soldering contacts that change the i2c address. Put each device address into the address array when wanting to string together the characters in each display, in the order that they are physically positioned from left to right.
 
+This model implements the [adafruit_ht16k33.segments.Seg14x4 API](https://docs.circuitpython.org/projects/ht16k33/en/latest/api.html#adafruit_ht16k33.segments.Seg14x4)
+
 Example Config
 ```
 {
@@ -97,6 +99,9 @@ Marquee text across the display once. Repeating marquee is currently not support
 {"marquee":{"text":"MICHAELLEE1019"}}
 ```
 
+Marquee text with a custom time between scrolls, in seconds
+{"marquee":{"text":"MICHAELLEE1019","delay":0.1}}
+
 Print text onto the display. This method does not clear existing characters so it is recommended to pad the text with space chacters.
 ```
 {"print":{"value":"ELLO POPPET"}}
@@ -106,6 +111,20 @@ Print number. Optionally, provide `decimal` to round the number to a specific nu
 ```
 {"print":{"value":3.14159265,"decimal":2}}
 ```
+
+Not working:
+{"scroll":{"count":2}}
+
+Not working:
+{"set_digit_raw":{"index":1,"bitmask":24}}
+
+
+### michaellee1019:tm1637
+
+#### 4_digit
+Viam wrapper of [Raspberry Pi Python 3 TM1637](https://github.com/depklyon/raspberrypi-tm1637) library that provides ability to control 4 digit displays that use a TM1637.
+
+
 
 ## Development
 Read this section if developing within this repository.
