@@ -169,7 +169,7 @@ class AudioOutputPlayFile(Generic):
                     results = await self.play_file(args['sound'])
                     result[name] = 'played: ' + results
                 else:
-                    result[name] = 'missing filename key'
+                    result[name] = 'missing sound key'
         return result
 
     async def play_file(self, filename: str) -> str:
