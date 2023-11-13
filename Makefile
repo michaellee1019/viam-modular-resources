@@ -22,6 +22,7 @@ robot-copy: robot-clean
 
 robot-development-test:
 	echo "running module on $(target)"
+	ssh $(target) "sudo pip install -r requirements.txt"
 	ssh $(target) "python3 src/main.py"
 
 robot-build:
@@ -45,4 +46,4 @@ developlement-workflow: robot-copy robot-development-test
 
 test-workflow: robot-copy robot-restart
 
-package-workflow: robot-copy robot-build robot-deploy module-package robot-restart
+package-workflow: robot-copy robot-build robot-deploy generate-tar robot-restart

@@ -1,5 +1,8 @@
 import json
 import sys
+import io
+import requests
+import asyncio
 
 from typing import ClassVar, List, Mapping, Sequence, Optional
 
@@ -15,6 +18,11 @@ from viam.resource.base import ResourceBase
 from viam.resource.types import Model, ModelFamily
 from viam.components.generic import Generic
 from google.protobuf import json_format
+from viam.services.service_base import ServiceBase
+from viam import logging
+from viam.components.camera import Camera
+
+LOGGER = logging.getLogger(__name__)
 
 import time
 import pygame
@@ -404,3 +412,75 @@ class TM1637_4Digit(Generic):
             raise Exception('clk_pin and dio_pin attributes are required for tm1637 4_digit component. These must be the two digital pin numbers the device is wired to.')
         
         return None
+
+class PrusaConnectCameraSnapshot(Generic):
+    MODEL: ClassVar[Model] = Model.from_string("michaellee1019:prusa_connect:camera_snapshot")
+
+    cameras_config = {}
+    cameras = list()
+    task = None
+
+    @classmethod
+    def new(cls, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
+        snapshotter = cls(config.name)
+
+        # try to dict
+        snapshotter.cameras_config = json.loads(json_format.MessageToJson(config.attributes.fields["cameras_config"]))
+        for camera_name in snapshotter.cameras_config.keys():
+            camera = dependencies[Camera.get_resource_name(camera_name)]
+            snapshotter.cameras.append(camera)
+
+        snapshotter.task = asyncio.create_task(snapshotter.loop())
+
+        return snapshotter
+    
+    async def loop(self):
+        while True:
+            for camera in self.cameras:
+                image = await camera.get_image()
+                config = self.cameras_config.get(camera.name)
+
+                resp = requests.put(
+                    "https://connect.prusa3d.com/c/snapshot",
+                    headers={
+                        'Token': config['token'],
+                        'Fingerprint': config['fingerprint'],
+                        "Content-Type": "image/jpg"
+                    },
+                    data=image.data
+                )
+                if resp.status_code > 299:
+                    LOGGER.error("failed to upload image(s) to prusa. status code {}: {}".format(resp.status_code, resp.text))
+                else:
+                    LOGGER.info("uploaded image(s) to prusa. status code {}: {}".format(resp.status_code, resp.text))
+            time.sleep(5)
+
+    @classmethod
+    def validate_config(self, config: ComponentConfig) -> None:
+        # Custom validation can be done by specifiying a validate function like this one. Validate functions
+        # can raise errors that will be returned to the parent through gRPC. Validate functions can
+        # also return a sequence of strings representing the implicit dependencies of the resource.
+        if "cameras_config" not in config.attributes.fields:
+            raise Exception("A cameras_config attribute is required for camera_snapshot component.")
+        
+        cameras_config = json.loads(json_format.MessageToJson(config.attributes.fields["cameras_config"]))
+        for camera_name, config in cameras_config.items():
+            if 'token' not in config or 'fingerprint' not in config:
+                raise Exception("camera '{}' is missing 'token' and/or 'fingerprint' fields".format(camera_name))
+
+        return None
+    
+    def reconfigure(self,
+                    config: ComponentConfig,
+                    dependencies: Mapping[ResourceName, ResourceBase]):
+        LOGGER.error("Reconfiguring camera_snapshot...")
+        self.task.cancel()
+        self.task = asyncio.create_task(self.loop())
+
+    def __del__(self):
+        LOGGER.error("Stopping camera_snapshot via __del__")
+        self.task.cancel()
+
+    async def close(self):
+        LOGGER.error("Stopping camera_snapshot via close")
+        self.task.cancel()

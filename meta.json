@@ -1,8 +1,8 @@
 {
-  "name": "michaellee1019:viam-modular-resources",
+  "module_id": "michaellee1019:viam-modular-resources",
   "visibility": "public",
   "url": "https://github.com/michaellee1019/viam-modular-resources/",
-  "description": "michael lee's test module",
+  "description": "This module contains a monolith of Viam Robotics Modular Resources that I have needed support for in my hobby projects. Currently it focuses on LED Segment displays, audio output, and I2C relays.",
   "models": [
     {
       "api": "rdk:component:generic",
@@ -19,6 +19,10 @@
     {
       "api": "rdk:component:generic",
       "model": "michaellee1019:ht16k33:seg_14_x_4"
+    },
+    {
+      "api": "rdk:component:generic",
+      "model":"michaellee1019:prusa_connect:camera_snapshot"
     }
   ],
   "entrypoint": "dist/main"
