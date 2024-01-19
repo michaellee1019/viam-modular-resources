@@ -42,7 +42,7 @@ generate-tar:
 	scp $(target):~/dist/main dist/main
 	tar -czvf dist/archive.tar.gz dist/main
 
-developlement-workflow: robot-copy robot-development-test
+development-workflow: robot-copy robot-development-test
 
 test-workflow: robot-copy robot-restart
 

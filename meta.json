@@ -25,5 +25,10 @@
       "model":"michaellee1019:prusa_connect:camera_snapshot"
     }
   ],
-  "entrypoint": "dist/main"
+  "entrypoint": "dist/main",
+  "build": {
+    "build": "sh build.sh",
+    "path": "dist/archive.tar.gz",
+    "arch" : ["linux/arm64", "linux/amd64", "darwin/arm64"]
+  },
 }
