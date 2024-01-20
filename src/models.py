@@ -27,6 +27,10 @@ LOGGER = logging.getLogger(__name__)
 import time
 import pygame
 
+
+from threading import Thread
+from threading import Event
+
 MCP23017_IODIRA = 0x00
 MCP23017_IPOLA  = 0x02
 MCP23017_GPINTENA = 0x04
@@ -418,45 +422,57 @@ class PrusaConnectCameraSnapshot(Generic):
 
     cameras_config = {}
     cameras = list()
-    task = None
+    thread = None
+    event = Event()
+
+    def thread_run(self):
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.capture_images())
+
+    def start_thread(self):
+        self.thread = Thread(target=self.thread_run())
+        self.thread.start()
+
+    def stop_thread(self):
+        self.event.set()
+        self.thread.join()
 
     @classmethod
     def new(cls, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
         snapshotter = cls(config.name)
-
-        # try to dict
-        snapshotter.cameras_config = json.loads(json_format.MessageToJson(config.attributes.fields["cameras_config"]))
-        for camera_name in snapshotter.cameras_config.keys():
-            camera = dependencies[Camera.get_resource_name(camera_name)]
-            snapshotter.cameras.append(camera)
-
-        snapshotter.task = asyncio.create_task(snapshotter.loop())
-
+        snapshotter.reconfigure(config, dependencies)
+        snapshotter.start_thread()
         return snapshotter
     
-    async def loop(self):
+    async def capture_images(self):
         while True:
+            if self.event.is_set():
+                break
             for camera in self.cameras:
-                image = await camera.get_image()
-                config = self.cameras_config.get(camera.name)
+                try:
+                    image = await camera.get_image()
+                    config = self.cameras_config.get(camera.name)
 
-                resp = requests.put(
-                    "https://connect.prusa3d.com/c/snapshot",
-                    headers={
-                        'Token': config['token'],
-                        'Fingerprint': config['fingerprint'],
-                        "Content-Type": "image/jpg"
-                    },
-                    data=image.data
-                )
-                if resp.status_code > 299:
-                    LOGGER.error("failed to upload image(s) to prusa. status code {}: {}".format(resp.status_code, resp.text))
-                else:
-                    LOGGER.info("uploaded image(s) to prusa. status code {}: {}".format(resp.status_code, resp.text))
+                    resp = requests.put(
+                        "https://connect.prusa3d.com/c/snapshot",
+                        headers={
+                            'Token': config['token'],
+                            'Fingerprint': config['fingerprint'],
+                            "Content-Type": "image/jpg"
+                        },
+                        data=image.data
+                    )
+                    if resp.status_code > 299:
+                        LOGGER.error("failed to upload image to prusa. status code {}: {}".format(resp.status_code, resp.text))
+                except Exception as e:
+                    LOGGER.error("failed to upload image to prusa: {}".format(e))
+                    continue
+                LOGGER.info("processed {} cameras.".format(len(self.cameras)))
+
             time.sleep(5)
 
     @classmethod
-    def validate_config(self, config: ComponentConfig) -> None:
+    def validate_config(cls, config: ComponentConfig) -> Sequence[str]:
         # Custom validation can be done by specifiying a validate function like this one. Validate functions
         # can raise errors that will be returned to the parent through gRPC. Validate functions can
         # also return a sequence of strings representing the implicit dependencies of the resource.
@@ -468,19 +484,24 @@ class PrusaConnectCameraSnapshot(Generic):
             if 'token' not in config or 'fingerprint' not in config:
                 raise Exception("camera '{}' is missing 'token' and/or 'fingerprint' fields".format(camera_name))
 
-        return None
+        return [""]
     
     def reconfigure(self,
                     config: ComponentConfig,
                     dependencies: Mapping[ResourceName, ResourceBase]):
-        LOGGER.error("Reconfiguring camera_snapshot...")
-        self.task.cancel()
-        self.task = asyncio.create_task(self.loop())
+        LOGGER.info("Reconfiguring camera_snapshot...")
+        self.stop_thread()
+
+        snapshotter.cameras_config = json.loads(json_format.MessageToJson(config.attributes.fields["cameras_config"]))
+        for camera_name in snapshotter.cameras_config.keys():
+            camera = dependencies[Camera.get_resource_name(camera_name)]
+            if camera is None:
+                LOGGER.error("camera '{}' is missing from dependencies. Be sure to add the camera to 'depends_on' field".format(camera))
+            else:
+                snapshotter.cameras.append(camera)
+
+        self.start_thread()
 
     def __del__(self):
-        LOGGER.error("Stopping camera_snapshot via __del__")
-        self.task.cancel()
-
-    async def close(self):
-        LOGGER.error("Stopping camera_snapshot via close")
-        self.task.cancel()
+        LOGGER.info("Stopping camera_snapshot...")
+        self.stop_thread()
