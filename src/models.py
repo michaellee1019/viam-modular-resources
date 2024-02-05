@@ -473,6 +473,7 @@ class PrusaConnectCameraSnapshot(Generic):
 
     @classmethod
     def validate_config(cls, config: ComponentConfig) -> Sequence[str]:
+        LOGGER.info("validating config...")
         # Custom validation can be done by specifiying a validate function like this one. Validate functions
         # can raise errors that will be returned to the parent through gRPC. Validate functions can
         # also return a sequence of strings representing the implicit dependencies of the resource.
@@ -484,7 +485,7 @@ class PrusaConnectCameraSnapshot(Generic):
             if 'token' not in config or 'fingerprint' not in config:
                 raise Exception("camera '{}' is missing 'token' and/or 'fingerprint' fields".format(camera_name))
 
-        return [""]
+        return None
     
     def reconfigure(self,
                     config: ComponentConfig,
