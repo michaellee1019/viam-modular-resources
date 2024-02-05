@@ -439,15 +439,15 @@ class PrusaConnectCameraSnapshot(Generic):
 
     @classmethod
     def new(cls, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
+        LOGGER.info("starting prusa camera server...")
         snapshotter = cls(config.name)
         snapshotter.reconfigure(config, dependencies)
-        snapshotter.start_thread()
         return snapshotter
     
     async def capture_images(self):
         while True:
             if self.event.is_set():
-                break
+                return
             for camera in self.cameras:
                 try:
                     image = await camera.get_image()
