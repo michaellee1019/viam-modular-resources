@@ -455,6 +455,9 @@ class PrusaConnectCameraSnapshot(Generic):
                     image = await camera.get_image()
                     config = self.cameras_config.get(camera.name)
 
+                    image_bytes = io.BytesIO()
+                    image.save(image_bytes, format='PNG')
+
                     resp = requests.put(
                         "https://connect.prusa3d.com/c/snapshot",
                         headers={
@@ -462,7 +465,7 @@ class PrusaConnectCameraSnapshot(Generic):
                             'Fingerprint': config['fingerprint'],
                             "Content-Type": "image/jpg"
                         },
-                        data=image.data
+                        data=image_bytes.getvalue()
                     )
                     if resp.status_code > 299:
                         LOGGER.error("failed to upload image to prusa. status code {}: {}".format(resp.status_code, resp.text))
