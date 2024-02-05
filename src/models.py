@@ -423,7 +423,7 @@ class PrusaConnectCameraSnapshot(Generic):
     cameras_config = {}
     cameras = list()
     thread = None
-    event = Event()
+    event = None
 
     def thread_run(self):
         loop = asyncio.get_event_loop()
@@ -431,17 +431,19 @@ class PrusaConnectCameraSnapshot(Generic):
 
     def start_thread(self):
         self.thread = Thread(target=self.thread_run())
+        self.event = Event()
         self.thread.start()
 
     def stop_thread(self):
-        self.event.set()
-        self.thread.join()
+        if self.thread is not None and self.event is not None:
+            self.event.set()
+            self.thread.join()
 
     @classmethod
     def new(cls, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
         LOGGER.info("starting prusa camera server...")
-        cls.reconfigure(config, dependencies)
         snapshotter = cls(config.name)
+        self.reconfigure(config, dependencies)
         return snapshotter
     
     async def capture_images(self):
