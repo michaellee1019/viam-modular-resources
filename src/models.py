@@ -456,7 +456,7 @@ class PrusaConnectCameraSnapshot(Generic):
                     config = self.cameras_config.get(camera.name)
 
                     image_bytes = io.BytesIO()
-                    image.save(image_bytes, format='JPG')
+                    image.save(image_bytes, format='JPEG')
 
                     resp = requests.put(
                         "https://connect.prusa3d.com/c/snapshot",
