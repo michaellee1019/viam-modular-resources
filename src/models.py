@@ -495,13 +495,13 @@ class PrusaConnectCameraSnapshot(Generic):
         LOGGER.info("Reconfiguring camera_snapshot...")
         self.stop_thread()
 
-        snapshotter.cameras_config = json.loads(json_format.MessageToJson(config.attributes.fields["cameras_config"]))
-        for camera_name in snapshotter.cameras_config.keys():
+        self.cameras_config = json.loads(json_format.MessageToJson(config.attributes.fields["cameras_config"]))
+        for camera_name in self.cameras_config.keys():
             camera = dependencies[Camera.get_resource_name(camera_name)]
             if camera is None:
                 LOGGER.error("camera '{}' is missing from dependencies. Be sure to add the camera to 'depends_on' field".format(camera))
             else:
-                snapshotter.cameras.append(camera)
+                self.cameras.append(camera)
 
         self.start_thread()
 
