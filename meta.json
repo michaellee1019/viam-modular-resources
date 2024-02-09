@@ -19,10 +19,6 @@
     {
       "api": "rdk:component:generic",
       "model": "michaellee1019:ht16k33:seg_14_x_4"
-    },
-    {
-      "api": "rdk:component:generic",
-      "model":"michaellee1019:prusa_connect:camera_snapshot"
     }
   ],
   "entrypoint": "dist/main",
