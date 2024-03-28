@@ -1,10 +1,16 @@
 #!/bin/bash
+
+set -e
+
 UNAME=$(uname -s)
 
-if [ "$UNAME" = "Linux" ]
+if [ $(python3 -c "import venv" &> /dev/null && echo 1 || echo 0) ]
+then
+    echo "venv exists"
+elif [ "$UNAME" = "Linux" ]
 then
     echo "Installing venv on Linux"
-    sudo apt-get install -y python3.11-venv
+    sudo apt-get install -y python3-venv
 fi
 if [ "$UNAME" = "Darwin" ]
 then
