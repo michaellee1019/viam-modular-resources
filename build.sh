@@ -6,7 +6,7 @@ UNAME=$(uname -s)
 
 if [ $(python3 -c "import venv" &> /dev/null && echo 1 || echo 0) ]
 then
-    echo "venv exists"
+    echo "python3 and venv are available"
 elif [ "$UNAME" = "Linux" ]
 then
     echo "Installing venv on Linux"
