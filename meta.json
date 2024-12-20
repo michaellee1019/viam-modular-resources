@@ -6,19 +6,7 @@
   "models": [
     {
       "api": "rdk:component:generic",
-      "model": "michaellee1019:mcp23017:eightsegment"
-    },
-    {
-      "api": "rdk:component:generic",
       "model": "michaellee1019:audio_output:play_file"
-    },
-    {
-      "api": "rdk:component:generic",
-      "model": "michaellee1019:grove:4_channel_spdt_relay"
-    },
-    {
-      "api": "rdk:component:generic",
-      "model": "michaellee1019:ht16k33:seg_14_x_4"
     }
   ],
   "entrypoint": "dist/main",

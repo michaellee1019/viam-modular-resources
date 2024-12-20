@@ -2,32 +2,6 @@
 This repository contains a monolith of [Viam Robotics Modular Resources](https://docs.viam.com/extend/modular-resources/) that I have needed support for in my hobby projects.
 
 ## Models included
-### michaellee1019:mcp23017:eightsegment
-This model utilizes an MCP23017 chip to control an Eight Segment LED. Currently alpha-numeric characters are supported, but some characters are not printed and are ignored when they cannot be displayed.
-
-Example Config:
-```
-{
-      "model": "michaellee1019:mcp23017:eightsegment",
-      "name": "my-model",
-      "type": "generic",
-      "attributes": {
-        "device": "B" // not used yet, for the future
-      },
-      "depends_on": []
-    }
-```
-
-Example Do Command:
-```
-{"flash_word": {"word":"ASDF"}}
-```
-
-Example Client Code:
-This can be ran on the robot or on any computer with python installed. Must install viam-sdk first.
-```
-ROBOT_SECRET="<secret>" ROBOT_ADDRESS="<address>" python3 src/client.py
-```
 ### michaellee1019:audio_output:play_file
 This model is an audio output component that plays files stored on the robot itself. The implementation is a wrapper on [pygame](http://www.pygame.org/docs/ref/music.html) which supports various file types.
 
@@ -53,76 +27,6 @@ By default the sound will play out of the audio output jack on the board. The mo
 sudo dtoverlay audremap pins_18_19
 ```
 Then connect the an amplifier, such as a [PAM8403](https://www.amazon.com//dp/B00M0F1LJW/) to GPIO pins 18 and 19.
-### michaellee1019:grove:4_channel_spdt_relay
-This model implements support for the [Grove 4 Channel SPDT Relay](https://www.seeedstudio.com/Grove-4-Channel-SPDT-Relay-p-3119.html).
-
-Example Config:
-```
-{
-  "attributes": {},
-  "depends_on": [],
-  "model": "michaellee1019:grove:4_channel_spdt_relay",
-  "name": "my-model",
-  "type": "generic"
-}
-```
-
-```
-{"pulse_one":{"address":"0x11", "bit":"0x2", "pulse_seconds": "1"}}
-```
-
-### michaellee1019:ht16k33
-The ht16k33 family of components is a Viam wrapper around the [Adafruit_CircuitPython_HT16K33](https://github.com/adafruit/Adafruit_CircuitPython_HT16K33/) library. The model has also been tested and works with the vk16k33 family of components which functionality is similar to the ht16k33.
-
-#### seg_14_x_4
-This component supports 14-segment LED devices that have a four character display in each device. Depending on the device you can chain multiple displays together on the same channel, usually by soldering contacts that change the i2c address. Put each device address into the address array when wanting to string together the characters in each display, in the order that they are physically positioned from left to right.
-
-This model implements the [adafruit_ht16k33.segments.Seg14x4 API](https://docs.circuitpython.org/projects/ht16k33/en/latest/api.html#adafruit_ht16k33.segments.Seg14x4)
-
-Example Config
-```
-{
-      "model": "michaellee1019:ht16k33:seg_14_x_4",
-      "name": "segments",
-      "type": "generic",
-      "attributes": {
-        "address": ["0x70","0x71"]
-      },
-      "depends_on": []
-}
-```
-
-Example Do Commands:
-
-Marquee text across the display once. Repeating marquee is currently not supported.
-```
-{"marquee":{"text":"MICHAELLEE1019"}}
-```
-
-Marquee text with a custom time between scrolls, in seconds
-{"marquee":{"text":"MICHAELLEE1019","delay":0.1}}
-
-Print text onto the display. This method does not clear existing characters so it is recommended to pad the text with space chacters.
-```
-{"print":{"value":"ELLO POPPET"}}
-```
-
-Print number. Optionally, provide `decimal` to round the number to a specific number of points.
-```
-{"print":{"value":3.14159265,"decimal":2}}
-```
-
-Not working:
-{"scroll":{"count":2}}
-
-Not working:
-{"set_digit_raw":{"index":1,"bitmask":24}}
-
-
-### michaellee1019:tm1637
-
-#### 4_digit
-Viam wrapper of [Raspberry Pi Python 3 TM1637](https://github.com/depklyon/raspberrypi-tm1637) library that provides ability to control 4 digit displays that use a TM1637.
 
 ## Development
 Read this section if developing within this repository.

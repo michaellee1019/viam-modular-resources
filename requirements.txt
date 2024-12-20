@@ -3,8 +3,6 @@ pyinstaller
 google-api-python-client
 smbus
 pygame
-adafruit-circuitpython-ht16k33
-raspberrypi-tm1637
 adafruit-circuitpython-neopixel
 adafruit-blinka
 adafruit-circuitpython-pixel-framebuf
