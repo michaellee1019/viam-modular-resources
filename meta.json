@@ -11,7 +11,7 @@
   ],
   "entrypoint": "dist/main",
   "build": {
-    "build": "sh build.sh",
+    "build": "./build.sh",
     "path": "dist/archive.tar.gz",
     "arch" : ["linux/arm64", "linux/amd64"]
   }
